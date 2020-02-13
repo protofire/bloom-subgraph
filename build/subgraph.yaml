@@ -1,0 +1,50 @@
+specVersion: 0.0.2
+schema:
+  file: schema.graphql
+dataSources:
+  - name: AccountRegistryLogic
+    kind: ethereum/contract
+    network: mainnet
+    source:
+      abi: AccountRegistryLogic
+      address: "0xb0f6905fa74ad35c0dc43ff60a2250488735dfc5"
+      startBlock: 6822879
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      file: AccountRegistryLogic/AccountRegistryLogic.wasm
+      abis:
+        - name: AccountRegistryLogic
+          file: AccountRegistryLogic/abis/AccountRegistryLogic.json
+      entities:
+        - Account
+        - Address
+        - LinkHistoryItem
+      eventHandlers:
+        - event: AddressLinked(indexed address,indexed address,indexed uint256)
+          handler: handleAddressLinked
+        - event: AddressUnlinked(indexed address)
+          handler: handleAddressUnlinked
+  - name: AttestationLogic
+    kind: ethereum/contract
+    network: mainnet
+    source:
+      abi: AttestationLogic
+      address: "0xceec7aaa57e3a77c73a9954b9b7d5b32ab688318"
+      startBlock: 6822938
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      file: AttestationLogic/AttestationLogic.wasm
+      abis:
+        - name: AttestationLogic
+          file: AttestationLogic/abis/AttestationLogic.json
+      entities:
+        - Account
+        - Address
+        - LinkHistoryItem
+      eventHandlers:
+        - event: TraitAttested(address,address,address,bytes32)
+          handler: handleTraitAttested
