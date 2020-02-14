@@ -1,7 +1,6 @@
 type Account @entity {
   "Bloom Account"
   id: ID!
-  linkId: BigInt!
   subjectOf: [Attestation!]! @derivedFrom(field: "subjectAccount")
   attesterOf: [Attestation!]! @derivedFrom(field: "attesterAccount")
   addresses: [Address!]! @derivedFrom(field: "account")
