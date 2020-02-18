@@ -6,6 +6,8 @@ import {
 } from "../../generated/schema";
 import { BigInt, Address } from "@graphprotocol/graph-ts";
 
+let ZERO = BigInt.fromI32(0)
+
 function getOrCreateAddress(
   addressString: string,
   persist: boolean = true
@@ -14,6 +16,7 @@ function getOrCreateAddress(
 
   if (address == null) {
     address = new BloomAddress(addressString);
+    address.bltBalance = ZERO
 
     if (persist) {
       address.save();
@@ -71,6 +74,7 @@ function getOrCreateAttestation(attestationId: string): Attestation {
   return attestation as Attestation;
 }
 
+// Array handling doesn't seem to be possible unfortunately
 function transferAttestations(
   fromAddress: BloomAddress,
   toAccount: Account

@@ -1,8 +1,9 @@
 type Account @entity {
   "Bloom Account"
   id: ID!
-  subjectOf: [Attestation!]! @derivedFrom(field: "subjectAccount")
-  attesterOf: [Attestation!]! @derivedFrom(field: "attesterAccount")
+  # since we cant be sure that it would be consistent, this data can be collected form the addresses linked to this specific account
+  # subjectOf: [Attestation!]! @derivedFrom(field: "subjectAccount")
+  # attesterOf: [Attestation!]! @derivedFrom(field: "attesterAccount")
   addresses: [Address!]! @derivedFrom(field: "account")
 }
 
@@ -10,9 +11,9 @@ type Attestation @entity {
   "Bloom Attestation"
   id: ID!
   subjectAddress: Address!
-  subjectAccount: Account
+  # subjectAccount: Account
   attesterAddress: Address!
-  attesterAccount: Account
+  # attesterAccount: Account
   requester: Bytes!
   dataHash: Bytes!
   createdDuringMigration: Boolean!
@@ -21,8 +22,10 @@ type Attestation @entity {
 type Address @entity {
   "Address that can be linked to others through an Account"
   id: ID!
+  bltBalance: BigInt!
   account: Account
   latestLinkBlock: BigInt
+  createdDuringMigration: Boolean
   subjectOf: [Attestation!]! @derivedFrom(field: "subjectAddress")
   attesterOf: [Attestation!]! @derivedFrom(field: "attesterAddress")
   linksHistory: [LinkHistoryItem!]! @derivedFrom(field: "address")

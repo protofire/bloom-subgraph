@@ -28,12 +28,13 @@ export function handleTraitAttested(event: TraitAttested): void {
   attestation.dataHash = dataHash;
   attestation.subjectAddress = subjectAddressString;
   attestation.attesterAddress = attesterAddressString;
-  if (subjectAddress.account != null) {
-    attestation.subjectAccount = subjectAddress.account;
-  }
-  if (attesterAddress.account != null) {
-    attestation.attesterAccount = attesterAddress.account;
-  }
+  // Commenting the account data because of inconsistencies and no real way to fix them
+  // if (subjectAddress.account != null) {
+  //   attestation.subjectAccount = subjectAddress.account;
+  // }
+  // if (attesterAddress.account != null) {
+  //   attestation.attesterAccount = attesterAddress.account;
+  // }
   attestation.createdDuringMigration = initializing;
   attestation.save();
 }

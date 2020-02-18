@@ -1,4 +1,5 @@
 import {
+  AccountRegistryLogic,
   AddressLinked,
   AddressUnlinked
 } from "../../generated/AccountRegistryLogic/AccountRegistryLogic";
@@ -14,19 +15,24 @@ import { BigInt, log } from "@graphprotocol/graph-ts";
 export function handleAddressLinked(event: AddressLinked): void {
   let currentAddressString = event.params.currentAddress.toHexString();
   let newAddressString = event.params.newAddress.toHexString();
-  let linkId = event.params.linkId;
+  let linkId = event.params.linkId.toString();
 
-  let currentAccount = getOrCreateAccount(linkId.toString());
+  let currentAccount = getOrCreateAccount(linkId);
   let currentAddress = getOrCreateAddress(currentAddressString);
   let newAddress = getOrCreateAddress(newAddressString);
 
-  currentAddress.account = currentAccount.id;
+  let accountRegistry = AccountRegistryLogic.bind(event.address)
+  let initializing = accountRegistry.initializing()
+
+  currentAddress.createdDuringMigration = initializing
+  currentAddress.account = linkId;
   if (currentAddress.latestLinkBlock == null) {
     currentAddress.latestLinkBlock = event.block.number;
     //transferAttestations(currentAddress, currentAccount);
   }
-  newAddress.account = currentAccount.id;
+  newAddress.account = linkId;
   newAddress.latestLinkBlock = event.block.number;
+  newAddress.createdDuringMigration = initializing
   //transferAttestations(newAddress, currentAccount);
 
   currentAddress.save();

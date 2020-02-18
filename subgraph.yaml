@@ -44,7 +44,28 @@ dataSources:
       entities:
         - Account
         - Address
+        - Attestation
         - LinkHistoryItem
       eventHandlers:
         - event: TraitAttested(address,address,address,bytes32)
           handler: handleTraitAttested
+  - name: BloomToken
+    kind: ethereum/contract
+    network: mainnet
+    source:
+      address: '0x107c4504cd79c5d2696ea0030a8dd4e92601b82e'
+      abi: ERC20
+      startBlock: 4641726
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      file: ./src/mappings/bloomToken.ts
+      entities:
+        - Address
+      abis:
+        - name: ERC20
+          file: ./abis/ERC20.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
