@@ -69,3 +69,32 @@ dataSources:
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
+  - name: TokenEscrowMarketplace
+    kind: ethereum/contract
+    network: mainnet
+    source:
+      address: '0x572686F8F84874989AF4D603Fe54fCfFE9d29462'
+      abi: TokenEscrowMarketplace
+      startBlock: 4641726
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      file: ./src/mappings/tokenEscrowMarketplace.ts
+      entities:
+        - Address
+        - Account
+        - TokenEscrowTransaction
+        - TokenEscrowWithdrawal
+        - TokenEscrowDeposit
+        - TokenEscrowPayment
+      abis:
+        - name: TokenEscrowMarketplace
+          file: ./abis/TokenEscrowMarketplace.json
+      eventHandlers:
+        - event: TokenMarketplaceWithdrawal(address,uint256)
+          handler: handleTokenMarketplaceWithdrawal
+        - event: TokenMarketplaceEscrowPayment(address,address,uint256)
+          handler: handleTokenMarketplaceEscrowPayment
+        - event: TokenMarketplaceDeposit(address,uint256)
+          handler: handleTokenMarketplaceDeposit

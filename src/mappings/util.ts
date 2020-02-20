@@ -2,11 +2,19 @@ import {
   Attestation,
   Address as BloomAddress,
   Account,
-  LinkHistoryItem
+  LinkHistoryItem,
+  TokenEscrowDeposit,
+  TokenEscrowPayment,
+  TokenEscrowWithdrawal
 } from "../../generated/schema";
+import {
+  TokenMarketplaceWithdrawal,
+  TokenMarketplaceDeposit,
+  TokenMarketplaceEscrowPayment
+} from "../../generated/TokenEscrowMarketplace/TokenEscrowMarketplace";
 import { BigInt, Address } from "@graphprotocol/graph-ts";
 
-let ZERO = BigInt.fromI32(0)
+let ZERO = BigInt.fromI32(0);
 
 function getOrCreateAddress(
   addressString: string,
@@ -16,7 +24,8 @@ function getOrCreateAddress(
 
   if (address == null) {
     address = new BloomAddress(addressString);
-    address.bltBalance = ZERO
+    address.bltBalance = ZERO;
+    address.escrowBalance = ZERO;
 
     if (persist) {
       address.save();
@@ -43,18 +52,20 @@ function getOrCreateAccount(linkId: string, persist: boolean = true): Account {
 function getOrCreateLinkHistoryItem(
   account: string,
   addressString: string,
-  block: BigInt,
+  startBlock: BigInt,
+  endBlock: BigInt,
   persist: boolean = true
 ): LinkHistoryItem {
   let linkHistoryItemId =
-    addressString + "-" + account + "-" + block.toString();
+    addressString + "-" + account + "-" + startBlock.toString();
   let linkHistoryItem = LinkHistoryItem.load(linkHistoryItemId);
 
   if (linkHistoryItem == null) {
     linkHistoryItem = new LinkHistoryItem(linkHistoryItemId);
     linkHistoryItem.account = account;
     linkHistoryItem.address = addressString;
-    linkHistoryItem.creationBlock = block;
+    linkHistoryItem.creationBlock = startBlock;
+    linkHistoryItem.deletionBlock = endBlock;
 
     if (persist) {
       linkHistoryItem.save();
@@ -74,45 +85,80 @@ function getOrCreateAttestation(attestationId: string): Attestation {
   return attestation as Attestation;
 }
 
-// Array handling doesn't seem to be possible unfortunately
-function transferAttestations(
-  fromAddress: BloomAddress,
-  toAccount: Account
-): void {
-  let subjectOfAttestations = fromAddress.subjectOf || [];
-  for (let i = 0; i < subjectOfAttestations.length; i++) {
-    let attestation = Attestation.load(subjectOfAttestations[i]);
-    if (attestation == null) continue;
-    attestation.subjectAccount = toAccount.id;
-    attestation.save();
+function getOrCreateTokenEscrowWithdrawal(
+  event: TokenMarketplaceWithdrawal,
+  persist: boolean = true
+): TokenEscrowWithdrawal {
+  let transactionId =
+    event.transaction.hash.toHex() + "-" + event.logIndex.toString();
+  let transaction = TokenEscrowWithdrawal.load(transactionId);
+
+  if (transaction == null) {
+    transaction = new TokenEscrowWithdrawal(transactionId);
+    transaction.timestamp = event.block.timestamp;
+    transaction.block = event.block.number;
+    transaction.transaction = event.transaction.hash;
+
+    transaction.escrowPayer = event.params.escrowPayer.toHexString();
+    transaction.amount = event.params.amount;
+
+    if (persist) {
+      transaction.save();
+    }
   }
-  let attesterOfAttestations = fromAddress.attesterOf || [];
-  for (let i = 0; i < attesterOfAttestations.length; i++) {
-    let attestation = Attestation.load(attesterOfAttestations[i]);
-    if (attestation == null) continue;
-    attestation.attesterAccount = toAccount.id;
-    attestation.save();
-  }
+
+  return transaction as TokenEscrowWithdrawal;
 }
 
-function removeAttestations(
-  fromAddress: BloomAddress,
-  toAccount: Account
-): void {
-  let subjectOfAttestations = fromAddress.subjectOf || [];
-  for (let i = 0; i < subjectOfAttestations.length; i++) {
-    let attestation = Attestation.load(subjectOfAttestations[i]);
-    if (attestation == null) continue;
-    attestation.subjectAccount = null;
-    attestation.save();
+function getOrCreateTokenEscrowDeposit(
+  event: TokenMarketplaceDeposit,
+  persist: boolean = true
+): TokenEscrowDeposit {
+  let transactionId =
+    event.transaction.hash.toHex() + "-" + event.logIndex.toString();
+  let transaction = TokenEscrowDeposit.load(transactionId);
+
+  if (transaction == null) {
+    transaction = new TokenEscrowDeposit(transactionId);
+    transaction.timestamp = event.block.timestamp;
+    transaction.block = event.block.number;
+    transaction.transaction = event.transaction.hash;
+
+    transaction.escrowPayer = event.params.escrowPayer.toHexString();
+    transaction.amount = event.params.amount;
+
+    if (persist) {
+      transaction.save();
+    }
   }
-  let attesterOfAttestations = fromAddress.attesterOf || [];
-  for (let i = 0; i < attesterOfAttestations.length; i++) {
-    let attestation = Attestation.load(attesterOfAttestations[i]);
-    if (attestation == null) continue;
-    attestation.attesterAccount = null;
-    attestation.save();
+
+  return transaction as TokenEscrowDeposit;
+}
+
+function getOrCreateTokenEscrowPayment(
+  event: TokenMarketplaceEscrowPayment,
+  persist: boolean = true
+): TokenEscrowPayment {
+  let transactionId =
+    event.transaction.hash.toHex() + "-" + event.logIndex.toString();
+  let transaction = TokenEscrowPayment.load(transactionId);
+
+  if (transaction == null) {
+    transaction = new TokenEscrowPayment(transactionId);
+    transaction.timestamp = event.block.timestamp;
+    transaction.block = event.block.number;
+    transaction.transaction = event.transaction.hash;
+
+    transaction.escrowPayer = event.params.escrowPayer.toHexString();
+    transaction.escrowPayee = event.params.escrowPayee.toHexString();
+    transaction.amount = event.params.amount;
+
+    if (persist) {
+      transaction.save();
+    }
   }
+
+  return transaction as TokenEscrowPayment;
 }
 
 export {
@@ -120,6 +166,7 @@ export {
   getOrCreateAccount,
   getOrCreateLinkHistoryItem,
   getOrCreateAttestation,
-  transferAttestations,
-  removeAttestations
+  getOrCreateTokenEscrowWithdrawal,
+  getOrCreateTokenEscrowDeposit,
+  getOrCreateTokenEscrowPayment
 };

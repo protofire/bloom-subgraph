@@ -1,41 +1,158 @@
 type Account @entity {
-  "Bloom Account"
+  "Accounts serve the purpouse of showing ownership of multiple addresses by linking them"
   id: ID!
+
   # since we cant be sure that it would be consistent, this data can be collected form the addresses linked to this specific account
   # subjectOf: [Attestation!]! @derivedFrom(field: "subjectAccount")
   # attesterOf: [Attestation!]! @derivedFrom(field: "attesterAccount")
+
+  "Addresses linked to this account"
   addresses: [Address!]! @derivedFrom(field: "account")
 }
 
 type Attestation @entity {
   "Bloom Attestation"
   id: ID!
+
+  "Address of the subject"
   subjectAddress: Address!
   # subjectAccount: Account
+
+  "Address of the attester"
   attesterAddress: Address!
   # attesterAccount: Account
+
+  "Address that requested the attestation"
   requester: Bytes!
+
+  "Hash of the merkle tree root for the attested data"
   dataHash: Bytes!
-  createdDuringMigration: Boolean!
+  # createdDuringMigration: Boolean!
 }
 
 type Address @entity {
-  "Address that can be linked to others through an Account"
+  "Address that participate in the Bloom protocol"
   id: ID!
+
+  "BLT balance tracked by transfers of BLT"
   bltBalance: BigInt!
+
+  "Account link corresponding to this address. It can be null if this address is not linked to another one"
   account: Account
+
+  "Block number on which this address got linked the last time"
   latestLinkBlock: BigInt
-  createdDuringMigration: Boolean
+
+  "BLT balance for this address on the TokenEscrowMarketplace"
+  escrowBalance: BigInt!
+
+  "Transactions with the TokenEscrowMarketplace"
+  escrowTransactions: [TokenEscrowTransaction!]! @derivedFrom(field: "escrowPayer")
+  # createdDuringMigration: Boolean
+
+  "Attestations in which the address is the subject"
   subjectOf: [Attestation!]! @derivedFrom(field: "subjectAddress")
+
+  "Attestations in which the address is the attester"
   attesterOf: [Attestation!]! @derivedFrom(field: "attesterAddress")
+
+  "Historical links to other accounts"
   linksHistory: [LinkHistoryItem!]! @derivedFrom(field: "address")
 }
 
 type LinkHistoryItem @entity {
-  "A BloomAddress can theoretically be linked to different identities, one after another. LinkHistoryItems could help trace back this history."
+  "Technically addresses could be linked to different accounts in different periods of time. This entity keeps track of that if it ever happens"
   id: ID!
+
+  "Address which was linked to an account"
   address: Address!
+
+  "Account to which the address was linked"
   account: Account!
+
+  "Block in which it was linked"
   creationBlock: BigInt!
-  deletionBlock: BigInt
+
+  "Block in which it was unlinked"
+  deletionBlock: BigInt!
+}
+
+interface TokenEscrowTransaction {
+  "Token escrow transactions are all transactions done with the TokenEscrowMarketplace"
+  id: ID!
+
+  "Address of the 'owner' of the tokens that the escrow has"
+  escrowPayer: Address!
+
+  "Amount of BLT transacted"
+  amount: BigInt!
+
+  "Transaction hash"
+  transaction: Bytes!
+
+  "Block number"
+  block: BigInt!
+
+  "Block timestamp"
+  timestamp: BigInt!
+}
+
+type TokenEscrowWithdrawal implements TokenEscrowTransaction @entity {
+  id: ID!
+
+  "Address of the 'owner' of the tokens that the escrow has"
+  escrowPayer: Address!
+
+  "Amount of BLT transacted"
+  amount: BigInt!
+
+  "Transaction hash"
+  transaction: Bytes!
+
+  "Block number"
+  block: BigInt!
+
+  "Block timestamp"
+  timestamp: BigInt!
+}
+
+type TokenEscrowDeposit implements TokenEscrowTransaction @entity {
+  id: ID!
+
+  "Address of the 'owner' of the tokens that the escrow has"
+  escrowPayer: Address!
+
+  "Amount of BLT transacted"
+  amount: BigInt!
+
+  "Transaction hash"
+  transaction: Bytes!
+
+  "Block number"
+  block: BigInt!
+
+  "Block timestamp"
+  timestamp: BigInt!
+}
+
+type TokenEscrowPayment implements TokenEscrowTransaction @entity {
+  id: ID!
+
+  "Address of the 'owner' of the tokens that the escrow has"
+  escrowPayer: Address!
+
+  "Address of the receiver of the payment"
+  escrowPayee: Address!
+
+  "Amount of BLT transacted"
+  amount: BigInt!
+
+  "Transaction hash"
+  transaction: Bytes!
+
+  "Block number"
+  block: BigInt!
+
+  "Block timestamp"
+  timestamp: BigInt!
 }
