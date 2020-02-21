@@ -1,14 +1,14 @@
 {
-  "name": "bloom-development",
+  "name": "bloom",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ juanmardefago/bloom-development",
-    "create-local": "graph create --node http://localhost:8020/ juanmardefago/bloom-development",
-    "remove-local": "graph remove --node http://localhost:8020/ juanmardefago/bloom-development",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 juanmardefago/bloom-development"
+    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ protofire/bloom",
+    "create-local": "graph create --node http://localhost:8020/ protofire/bloom",
+    "remove-local": "graph remove --node http://localhost:8020/ protofire/bloom",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 protofire/bloom"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.17.1",
