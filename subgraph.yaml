@@ -11,7 +11,7 @@ dataSources:
       startBlock: 6822879
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.3
+      apiVersion: 0.0.4
       language: wasm/assemblyscript
       file: ./src/mappings/accountRegistry.ts
       abis:
@@ -35,7 +35,7 @@ dataSources:
       startBlock: 6822938
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.3
+      apiVersion: 0.0.4
       language: wasm/assemblyscript
       file: ./src/mappings/attestationLogic.ts
       abis:
@@ -58,7 +58,7 @@ dataSources:
       startBlock: 4641726
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.3
+      apiVersion: 0.0.4
       language: wasm/assemblyscript
       file: ./src/mappings/bloomToken.ts
       entities:
@@ -78,7 +78,7 @@ dataSources:
       startBlock: 4641726
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.3
+      apiVersion: 0.0.4
       language: wasm/assemblyscript
       file: ./src/mappings/tokenEscrowMarketplace.ts
       entities:
